@@ -1,0 +1,44 @@
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  offers: [Offer!]!
+  purchases: [Purchase!]!
+}
+
+type Token @entity {
+  id: ID!
+  address: Bytes!
+  offers: [Offer!]!
+  purchases: [Purchase!]!
+}
+
+type OfferPrice @entity {
+  id: ID!
+  offer: Offer!
+  price: BigInt!
+  createdAtBlock: BigInt!
+  createdAtTimestamp: BigInt!
+}
+
+type Purchase @entity {
+  id: ID!
+  offer: Offer!
+  buyer: Account!
+  price: BigInt!
+  quantity: BigInt!
+  createdAtBlock: BigInt!
+  createdAtTimestamp: BigInt!
+}
+
+type Offer @entity {
+  id: ID!
+  seller: Account!
+  offerToken: Token!
+  buyerToken: Token!
+  prices: [OfferPrice!]!
+  purchases: [Purchase!]!
+  createdAtBlock: BigInt!
+  createdAtTimestamp: BigInt!
+  removedAtBlock: BigInt
+  removedAtTimestamp: BigInt
+}
