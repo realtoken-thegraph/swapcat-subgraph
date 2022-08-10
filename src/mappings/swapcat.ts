@@ -68,6 +68,7 @@ export function handleMakeoffer (call: MakeofferCall): void {
     const offer = Offer.load(call.inputs._offerid.toString())
     if (offer) {
       const offerPrice = new OfferPrice(call.transaction.hash.toHex())
+      offerPrice.offer = offer.id
       offerPrice.price = call.inputs._price
       offerPrice.createdAtBlock = call.block.number
       offerPrice.createdAtTimestamp = call.block.timestamp
