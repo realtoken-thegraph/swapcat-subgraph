@@ -5,19 +5,19 @@
   "main": "index.js",
   "scripts": {
     "codegen": "graph codegen --output-dir src/types/ subgraph.yaml",
-    "build": "graph build subgraph.yaml",
-    "deploy": "graph deploy --product hosted-service --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ jycssu-com/swapcat --access-token"
+    "build": "graph build",
+    "deploy": "graph deploy --product hosted-service --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ realtoken-thegraph/swapcat-eth"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jycssu-com/swapcat-subgraph.git"
+    "url": "git+https://github.com/realtoken-thegraph/swapcat-subgraph.git"
   },
   "author": "Jycssu",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jycssu-com/swapcat-subgraph/issues"
+    "url": "https://github.com/realtoken-thegraph/swapcat-subgraph/issues"
   },
-  "homepage": "https://github.com/jycssu-com/swapcat-subgraph#readme",
+  "homepage": "https://github.com/realtoken-thegraph/swapcat-subgraph#readme",
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.33.0",
     "@graphprotocol/graph-ts": "^0.27.0"

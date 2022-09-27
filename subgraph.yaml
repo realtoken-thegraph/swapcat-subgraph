@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Swapcat
-    network: xdai
+    network: mainnet
     source:
       address: '0xB18713Ac02Fc2090c0447e539524a5c76f327a3b'
       abi: Swapcat
-      startBlock: 11902840
+      startBlock: 10817747
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
