@@ -1,4 +1,4 @@
-import { Address, Bytes } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { Offer, Account, OfferPrice, Purchase, Token } from '../types/schema'
 import { ERC20 } from '../types/Swapcat/ERC20'
 import { MakeofferCall, BuyCall, DeleteofferCall } from '../types/Swapcat/Swapcat'
@@ -18,17 +18,33 @@ function getAccount (address: string): Account {
 function getToken (address: string): Token {
   let token = Token.load(address)
   if (token == null) {
-    let contract = ERC20.bind(Address.fromString(address));
+    token = new Token(address);
+
+    const contract = ERC20.bind(Address.fromString(address));
 
     const decimals = contract.try_decimals();
     const name = contract.try_name();
     const symbol = contract.try_symbol();
   
-    token = new Token(address)
+    if (!decimals.reverted) {
+      token.decimals = BigInt.fromI32(decimals.value);
+    } else {
+      token.decimals = BigInt.fromI32(null as i32);
+    }
+
+    if (!name.reverted) {
+      token.name = name.value;
+    } else {
+      token.name = null;
+    }
+
+    if (!symbol.reverted) {
+      token.symbol = symbol.value;
+    } else {
+      token.symbol = null;
+    }
+
     token.address = Address.fromHexString(address)
-    token.decimals = decimals.reverted ? -1 : decimals.value;
-    token.name = name.reverted ? null : name.value;
-    token.symbol = symbol.reverted ? null : symbol.value;
     token.offers = []
     token.purchases = []
     token.save()
