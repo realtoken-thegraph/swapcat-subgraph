@@ -1,8 +1,8 @@
 {
   "extend": "./node_modules/@graphprotocol/graph-ts/tsconfig.json",
+  "include": ["src"],
   "compilerOptions": {
-    "types": [
-      "@graphprotocol/graph-ts"
-    ]
-  }
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+  },
 }

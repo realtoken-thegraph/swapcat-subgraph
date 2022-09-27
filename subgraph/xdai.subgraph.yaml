@@ -1,0 +1,35 @@
+specVersion: 0.0.4
+description: Offers on Swapcat
+repository: https://github.com/jycssu-com/swapcat-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Swapcat
+    network: xdai
+    source:
+      address: '0xB18713Ac02Fc2090c0447e539524a5c76f327a3b'
+      abi: Swapcat
+      startBlock: 11902838
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/swapcat.ts
+      entities:
+        - Account
+        - OfferPrice
+        - Purchase
+        - Offer
+      abis:
+        - name: Swapcat
+          file: ./abis/Swapcat.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      callHandlers:
+        - function: makeoffer(address,address,uint256,uint24)
+          handler: handleMakeoffer
+        - function: buy(uint24,uint256,uint256)
+          handler: handleBuy
+        - function: deleteoffer(uint24)
+          handler: handleDeleteoffer

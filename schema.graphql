@@ -10,6 +10,9 @@ type Token @entity {
   address: Bytes!
   offers: [Offer!]!
   purchases: [Purchase!]!
+  decimals: BigInt!
+  name: String
+  symbol: String
 }
 
 type OfferPrice @entity {
