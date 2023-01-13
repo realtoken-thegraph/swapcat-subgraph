@@ -21,13 +21,13 @@ const networkMapping: TypedMap<i32, string> = new TypedMap()
 networkMapping.set(1, "ethereumContract");
 networkMapping.set(100, "gnosisContract");
 
-export function createToken(address: Address, fullName: string, symbol: string): void {
+export function createToken(address: Address): void {
 
   if (address) {
     // Persist token data if it doesn't already exist
     let token = Token.load(address.toHex());
 
-    if (token == null) {
+    if (token === null) {
       token = new Token(address.toHex());
       token.address = address;
       token.tokenType = 3;
@@ -52,7 +52,7 @@ export function initRegistry(event: ethereum.Event): void {
       const parsedAddress = Address.fromString(
         address.toString().toLowerCase()
       );
-      createToken(parsedAddress, tokenObj.mustGet("fullName").toString(), tokenObj.mustGet("symbol").toString())
+      createToken(parsedAddress)
     }
   } else {
     log.critical("ipfsdata is null: {}", [REGISTRY_HASH]);
