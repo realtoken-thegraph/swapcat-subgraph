@@ -1,0 +1,11 @@
+[
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      { "type": "address", "name": "_from", "indexed": true },
+      { "type": "address", "name": "_to", "indexed": true }
+    ],
+    "anonymous": false
+  }
+]

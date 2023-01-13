@@ -1,9 +1,52 @@
-specVersion: 0.0.4
-description: Offers on Swapcat
-repository: https://github.com/jycssu-com/swapcat-subgraph
+specVersion: 0.0.5
+description: Offers on Swapcat only RealTokens XDAI
+repository: https://github.com/realtoken-thegraph/swapcat-subgraph
 schema:
   file: ./schema.graphql
+features:
+  - ipfsOnEthereumContracts
 dataSources:
+  - name: AdminUpgradeabilityProxy
+    kind: ethereum/contract
+    network: xdai
+    source:
+      abi: AdminUpgradeabilityProxy
+      address: "0xa17950c9910e28cae535f43d0c87a6c6cb2f5216"
+      startBlock: 11961108
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/registry.ts
+      entities:
+        - Token
+      abis:
+        - name: AdminUpgradeabilityProxy
+          file: ./abis/AdminUpgradeabilityProxy.json
+      eventHandlers:
+        - event: 'OwnershipTransferred(indexed address,indexed address)'
+          handler: initRegistry
+  - name: Create2Deployer
+    kind: ethereum/contract
+    network: xdai
+    source:
+      abi: Create2Deployer
+      address: "0x13385924683d2a2D0ff5D54e3524EbE2D1dE79C3"
+      startBlock: 25827815
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/deployToken.ts
+      entities:
+        - Token
+      abis:
+        - name: Create2Deployer
+          file: ./abis/Create2Deployer.json
+      eventHandlers:
+        - event: "DeployedToken(address,bytes32,bytes32,string,string)"
+          topic0: "0x7735ba0ab1865272a5022dd848b500004a104b319e3d70ab04244851218c0039"
+          handler: handleCreatedToken
   - kind: ethereum/contract
     name: Swapcat
     network: xdai
@@ -13,7 +56,7 @@ dataSources:
       startBlock: 11902838
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/swapcat.ts
       entities:
@@ -21,6 +64,7 @@ dataSources:
         - OfferPrice
         - Purchase
         - Offer
+        - Token
       abis:
         - name: Swapcat
           file: ./abis/Swapcat.json

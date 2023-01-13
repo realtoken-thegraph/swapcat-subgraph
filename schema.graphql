@@ -1,24 +1,28 @@
 type Account @entity {
   id: ID!
   address: Bytes!
-  offers: [Offer!]!
-  purchases: [Purchase!]!
+  offers: [Offer!]! @derivedFrom(field: "seller")
+  purchases: [Purchase!]! @derivedFrom(field: "buyer")
+  sales: [Purchase!]! @derivedFrom(field: "seller")
 }
 
 type Token @entity {
   id: ID!
   address: Bytes!
-  offers: [Offer!]!
-  purchases: [Purchase!]!
-  decimals: BigInt
-  name: String
-  symbol: String
+  decimals: Int!
+  name: String!
+  symbol: String!
+  tokenType: Int!
+  offers: [Offer!]! @derivedFrom(field: "offerToken")
+  offersAsCurrency: [Offer!]! @derivedFrom(field: "buyerToken")
+  purchases: [Purchase!]! @derivedFrom(field: "offerToken")
+  purchasesAsCurrency: [Purchase!]! @derivedFrom(field: "buyerToken")
 }
 
 type OfferPrice @entity {
   id: ID!
   offer: Offer!
-  price: BigInt!
+  price: BigDecimal!
   createdAtBlock: BigInt!
   createdAtTimestamp: BigInt!
 }
@@ -26,9 +30,12 @@ type OfferPrice @entity {
 type Purchase @entity {
   id: ID!
   offer: Offer!
+  offerToken: Token!
+  buyerToken: Token!
   buyer: Account!
-  price: BigInt!
-  quantity: BigInt!
+  seller: Account!
+  price: BigDecimal!
+  quantity: BigDecimal!
   createdAtBlock: BigInt!
   createdAtTimestamp: BigInt!
 }
@@ -38,10 +45,12 @@ type Offer @entity {
   seller: Account!
   offerToken: Token!
   buyerToken: Token!
-  prices: [OfferPrice!]!
-  purchases: [Purchase!]!
   createdAtBlock: BigInt!
   createdAtTimestamp: BigInt!
   removedAtBlock: BigInt
   removedAtTimestamp: BigInt
+  pricesCount: BigInt!
+  purchasesCount: BigInt!
+  prices: [OfferPrice!]! @derivedFrom(field: "offer")
+  purchases: [Purchase!]! @derivedFrom(field: "offer")
 }

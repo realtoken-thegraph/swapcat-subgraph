@@ -1,0 +1,38 @@
+[
+  {
+    "anonymous": true,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "param0",
+        "type": "bytes"
+      },
+      {
+        "indexed": true,
+        "name": "param1",
+        "type": "bytes"
+      }
+    ],
+    "name": "Unknown",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  }
+]

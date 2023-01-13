@@ -1,46 +1,49 @@
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { Offer, Account, OfferPrice, Purchase, Token } from "../types/schema";
-import { ERC20 } from "../types/Swapcat/ERC20";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
+import {
+  Offer,
+  Account,
+  OfferPrice,
+  Purchase,
+  Token
+} from "../../generated/schema";
+import { ERC20 } from "../../generated/Swapcat/ERC20";
 import {
   MakeofferCall,
   BuyCall,
   DeleteofferCall
-} from "../types/Swapcat/Swapcat";
+} from "../../generated/Swapcat/Swapcat";
+import { ONE, toDecimal, ZERO } from "../helpers/number";
 
 function getAccount(address: string): Account {
   let account = Account.load(address);
   if (account == null) {
     account = new Account(address);
     account.address = Bytes.fromHexString(address);
-    account.offers = [];
-    account.purchases = [];
     account.save();
   }
   return account;
 }
 
-function getToken(address: string): Token {
+function getToken(address: string): Token | null {
   let token = Token.load(address);
   if (token == null) {
     token = new Token(address);
 
-    if (address != "0x0000000000000000000000000000000000000007") {
-      const contract = ERC20.bind(Address.fromString(address));
+    const contract = ERC20.bind(Address.fromString(address));
 
-      if (contract) {
-        const decimals = contract.try_decimals();
-        const name = contract.try_name();
-        const symbol = contract.try_symbol();
+    if (contract) {
+      const decimals = contract.try_decimals();
+      const name = contract.try_name();
+      const symbol = contract.try_symbol();
 
-        token.decimals = BigInt.fromI32((decimals.reverted ? null : decimals.value) as i32);
-        token.name = name.reverted ? null : name.value
-        token.symbol = symbol.reverted ? null : symbol.value
-      }
-    }
+      if (decimals.reverted || name.reverted || symbol.reverted) return null;
+      token.decimals = decimals.value
+      token.name = name.value;
+      token.symbol =  symbol.value;
+    } else return null
 
     token.address = Address.fromHexString(address);
-    token.offers = [];
-    token.purchases = [];
+    token.tokenType = 1;
     token.save();
   }
   return token;
@@ -48,95 +51,87 @@ function getToken(address: string): Token {
 
 export function handleMakeoffer(call: MakeofferCall): void {
   const seller = getAccount(call.from.toHex());
-  const offerToken = getToken(call.inputs._offertoken.toHex());
-  const buyerToken = getToken(call.inputs._buyertoken.toHex());
+  const offerTokenAddress = call.inputs._offertoken.toHex();
+  const buyerTokenAddress = call.inputs._buyertoken.toHex();
 
+  let offerTokenEntity = Token.load(offerTokenAddress);
+  let buyerTokenEntity = Token.load(buyerTokenAddress)
+  if (offerTokenEntity === null && buyerTokenEntity === null) return;
+
+  let totalTokenType = 0;
+  if (offerTokenEntity !== null) totalTokenType += offerTokenEntity.tokenType;
+  if (buyerTokenEntity !== null) totalTokenType += buyerTokenEntity.tokenType;
+
+  if (totalTokenType < 3) return;
+
+  const offerToken = getToken(offerTokenAddress);
+  const buyerToken = getToken(buyerTokenAddress);
+
+  if (offerToken === null || buyerToken === null) return;
+
+  const currentBlockTimestamp = call.block.timestamp;
+  const currentBlockNumber = call.block.number;
   if (call.inputs._offerid === 0) {
-    const offer = new Offer(call.outputs.value0.toString());
+    const newOfferId = call.outputs.value0.toString();
+    const offer = new Offer(newOfferId);
     offer.seller = seller.id;
     offer.offerToken = offerToken.id;
     offer.buyerToken = buyerToken.id;
-    offer.purchases = [];
-    offer.createdAtBlock = call.block.number;
-    offer.createdAtTimestamp = call.block.timestamp;
+    offer.createdAtBlock = currentBlockNumber
+    offer.createdAtTimestamp = currentBlockTimestamp
+    offer.purchasesCount = ZERO;
+    offer.pricesCount = ONE;
 
-    const offerPrice = new OfferPrice(call.transaction.hash.toHex());
+    const offerPrice = new OfferPrice(newOfferId + '-0');
     offerPrice.offer = offer.id;
-    offerPrice.price = call.inputs._price;
-    offerPrice.createdAtBlock = call.block.number;
-    offerPrice.createdAtTimestamp = call.block.timestamp;
+    offerPrice.price = toDecimal(call.inputs._price, buyerToken.decimals);
+    offerPrice.createdAtBlock = currentBlockNumber
+    offerPrice.createdAtTimestamp = currentBlockTimestamp
+    
     offerPrice.save();
-
-    offer.prices = [offerPrice.id];
     offer.save();
-
-    const offerTokenOffers = offerToken.offers;
-    offerTokenOffers.push(offer.id);
-    offerToken.offers = offerTokenOffers;
-    offerToken.save();
-
-    const buyerTokenOffers = buyerToken.offers;
-    buyerTokenOffers.push(offer.id);
-    buyerToken.offers = buyerTokenOffers;
-    buyerToken.save();
-
-    const sellerOffers = seller.offers;
-    sellerOffers.push(offer.id);
-    seller.offers = sellerOffers;
-    seller.save();
   } else {
-    const offer = Offer.load(call.inputs._offerid.toString());
+    const offerId = call.inputs._offerid.toString();
+    const offer = Offer.load(offerId);
     if (offer) {
-      const offerPrice = new OfferPrice(call.transaction.hash.toHex());
+      const offerPrice = new OfferPrice(offerId + '-' + offer.pricesCount.toString());
       offerPrice.offer = offer.id;
-      offerPrice.price = call.inputs._price;
-      offerPrice.createdAtBlock = call.block.number;
-      offerPrice.createdAtTimestamp = call.block.timestamp;
+      offerPrice.price = toDecimal(call.inputs._price, buyerToken.decimals);
+      offerPrice.createdAtBlock = currentBlockNumber
+      offerPrice.createdAtTimestamp = currentBlockTimestamp
       offerPrice.save();
 
-      const prices = offer.prices;
-      prices.push(offerPrice.id);
-      offer.prices = prices;
+      offer.pricesCount = offer.pricesCount.plus(ONE);
       offer.save();
     }
   }
 }
 
 export function handleBuy(call: BuyCall): void {
-  const offer = Offer.load(call.inputs._offerid.toString());
+  const offerId = call.inputs._offerid.toString();
+  const offer = Offer.load(offerId);
 
   if (offer) {
     const buyer = getAccount(call.from.toHex());
+    const seller = getAccount(offer.seller);
     const offerToken = getToken(offer.offerToken);
     const buyerToken = getToken(offer.buyerToken);
 
-    const purchase = new Purchase(call.transaction.hash.toHex());
+    if (offerToken === null || buyerToken === null) return;
+    const purchase = new Purchase(offerId + '-' + offer.purchasesCount.toString());
     purchase.offer = offer.id;
+    purchase.offerToken = offerToken.id;
+    purchase.buyerToken = buyerToken.id;
     purchase.buyer = buyer.id;
-    purchase.price = call.inputs._price;
-    purchase.quantity = call.inputs._offertokenamount;
+    purchase.seller = seller.id;
+    purchase.price = toDecimal(call.inputs._price, buyerToken.decimals);
+    purchase.quantity = toDecimal(call.inputs._offertokenamount, offerToken.decimals);
     purchase.createdAtBlock = call.block.number;
     purchase.createdAtTimestamp = call.block.timestamp;
     purchase.save();
 
-    const buyerPurchases = buyer.purchases;
-    buyerPurchases.push(purchase.id);
-    buyer.purchases = buyerPurchases;
-    buyer.save();
 
-    const offerTokenPurchases = offerToken.purchases;
-    offerTokenPurchases.push(purchase.id);
-    offerToken.purchases = offerTokenPurchases;
-    offerToken.save();
-
-    const buyerTokenPurchases = buyerToken.purchases;
-    buyerTokenPurchases.push(purchase.id);
-    buyerToken.purchases = buyerTokenPurchases;
-    buyerToken.save();
-
-    const purchases = offer.purchases;
-    purchases.push(purchase.id);
-    offer.purchases = purchases;
+    offer.purchasesCount = offer.purchasesCount.plus(ONE);
     offer.save();
   }
 }
