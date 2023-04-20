@@ -15,7 +15,7 @@ import { ONE, ZERO } from "../helpers/number";
 
 function getAccount(address: string): Account {
   let account = Account.load(address);
-  if (account === null) {
+  if (account == null) {
     account = new Account(address);
     account.address = Bytes.fromHexString(address);
     account.save();
@@ -25,7 +25,7 @@ function getAccount(address: string): Account {
 
 function getToken(address: string): Token {
   let token = Token.load(address);
-  if (token === null) {
+  if (token == null) {
     token = new Token(address);
     token.address = Address.fromHexString(address);
     token.tokenType = 1;
@@ -41,7 +41,7 @@ export function handleMakeoffer(call: MakeofferCall): void {
 
   let offerTokenEntity = Token.load(offerTokenAddress);
   let buyerTokenEntity = Token.load(buyerTokenAddress);
-  if (offerTokenEntity === null && buyerTokenEntity === null) return;
+  if (offerTokenEntity == null && buyerTokenEntity == null) return;
 
   let totalTokenType = 0;
   if (offerTokenEntity !== null) totalTokenType += offerTokenEntity.tokenType;
@@ -54,7 +54,7 @@ export function handleMakeoffer(call: MakeofferCall): void {
 
   const currentBlockTimestamp = call.block.timestamp;
   const currentBlockNumber = call.block.number;
-  if (inputs._offerid === 0) {
+  if (inputs._offerid == 0) {
     const seller = getAccount(call.from.toHex());
     const newOfferId = call.outputs.value0.toString();
     const offer = new Offer(newOfferId);
@@ -112,7 +112,6 @@ export function handleBuy(call: BuyCall): void {
     purchase.createdAtBlock = call.block.number;
     purchase.createdAtTimestamp = call.block.timestamp;
     purchase.save();
-
 
     offer.purchasesCount = offer.purchasesCount.plus(ONE);
     offer.save();

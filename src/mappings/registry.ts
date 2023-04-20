@@ -27,7 +27,7 @@ export function createToken(address: Address): void {
     // Persist token data if it doesn't already exist
     let token = Token.load(address.toHex());
 
-    if (token === null) {
+    if (token == null) {
       token = new Token(address.toHex());
       token.address = address;
       token.tokenType = 3;
