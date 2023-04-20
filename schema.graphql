@@ -1,4 +1,4 @@
-type Account @entity {
+type Account @entity(immutable: true) {
   id: ID!
   address: Bytes!
   offers: [Offer!]! @derivedFrom(field: "seller")
@@ -6,12 +6,9 @@ type Account @entity {
   sales: [Purchase!]! @derivedFrom(field: "seller")
 }
 
-type Token @entity {
+type Token @entity(immutable: true) {
   id: ID!
   address: Bytes!
-  decimals: Int!
-  name: String!
-  symbol: String!
   tokenType: Int!
   offers: [Offer!]! @derivedFrom(field: "offerToken")
   offersAsCurrency: [Offer!]! @derivedFrom(field: "buyerToken")
@@ -19,23 +16,23 @@ type Token @entity {
   purchasesAsCurrency: [Purchase!]! @derivedFrom(field: "buyerToken")
 }
 
-type OfferPrice @entity {
+type OfferPrice @entity(immutable: true) {
   id: ID!
   offer: Offer!
-  price: BigDecimal!
+  price: BigInt!
   createdAtBlock: BigInt!
   createdAtTimestamp: BigInt!
 }
 
-type Purchase @entity {
+type Purchase @entity(immutable: true) {
   id: ID!
   offer: Offer!
   offerToken: Token!
   buyerToken: Token!
   buyer: Account!
   seller: Account!
-  price: BigDecimal!
-  quantity: BigDecimal!
+  price: BigInt!
+  quantity: BigInt!
   createdAtBlock: BigInt!
   createdAtTimestamp: BigInt!
 }
