@@ -96,6 +96,8 @@ export function handleBuy(call: BuyCall): void {
   const offer = Offer.load(offerId);
 
   if (offer) {
+
+    
     const buyer = getAccount(call.from.toHex());
     const seller = getAccount(offer.seller);
     const offerToken = getToken(offer.offerToken);

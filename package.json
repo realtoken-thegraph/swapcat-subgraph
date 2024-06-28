@@ -7,7 +7,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy:eth": "yarn codegen:eth && yarn build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ realtoken-thegraph/swapcat-eth",
-    "deploy:xdai": "yarn codegen:xdai && yarn build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ realtoken-thegraph/swapcat-xdai",
+    "deploy:xdai": "yarn codegen:xdai && yarn build && graph deploy --studio swapcat-gnosis",
     "deploy:all": "yarn deploy:eth && yarn deploy:xdai",
     "script": "node scripts/createSubgraph.js",
     "precodegen:xdai": "rimraf generated && yarn script xdai",
@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/realtoken-thegraph/swapcat-subgraph#readme",
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.33.0",
-    "@graphprotocol/graph-ts": "^0.27.0",
+    "@graphprotocol/graph-cli": "0.51.2",
+    "@graphprotocol/graph-ts": "0.31.0",
     "@types/node": "^18.7.23",
     "rimraf": "^3.0.2",
     "typescript": "^4.8.3"

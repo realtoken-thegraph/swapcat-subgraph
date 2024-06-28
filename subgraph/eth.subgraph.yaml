@@ -3,8 +3,6 @@ description: Offers on Swapcat only RealTokens ETH
 repository: https://github.com/realtoken-thegraph/swapcat-subgraph
 schema:
   file: ./schema.graphql
-features:
-  - ipfsOnEthereumContracts
 dataSources:
   - name: TokenRegistry
     kind: ethereum/contract

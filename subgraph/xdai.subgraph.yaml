@@ -1,14 +1,12 @@
 specVersion: 0.0.5
-description: Offers on Swapcat only RealTokens XDAI
+description: Offers on Swapcat only RealTokens Gnosis
 repository: https://github.com/realtoken-thegraph/swapcat-subgraph
 schema:
   file: ./schema.graphql
-features:
-  - ipfsOnEthereumContracts
 dataSources:
   - name: AdminUpgradeabilityProxy
     kind: ethereum/contract
-    network: xdai
+    network: gnosis
     source:
       abi: AdminUpgradeabilityProxy
       address: "0xa17950c9910e28cae535f43d0c87a6c6cb2f5216"
@@ -28,7 +26,7 @@ dataSources:
           handler: initRegistry
   - name: Create2Deployer
     kind: ethereum/contract
-    network: xdai
+    network: gnosis
     source:
       abi: Create2Deployer
       address: "0x13385924683d2a2D0ff5D54e3524EbE2D1dE79C3"
@@ -49,7 +47,7 @@ dataSources:
           handler: handleCreatedToken
   - kind: ethereum/contract
     name: Swapcat
-    network: xdai
+    network: gnosis
     source:
       address: '0xB18713Ac02Fc2090c0447e539524a5c76f327a3b'
       abi: Swapcat
