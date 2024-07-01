@@ -107,6 +107,7 @@ export function handleBuy(call: BuyCall): void {
     purchase.offer = offer.id;
     purchase.offerToken = offerToken.id;
     purchase.buyerToken = buyerToken.id;
+    purchase.txHash = call.transaction.hash;
     purchase.buyer = buyer.id;
     purchase.seller = seller.id;
     purchase.price = call.inputs._price;

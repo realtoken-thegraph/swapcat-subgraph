@@ -26,6 +26,7 @@ type OfferPrice @entity(immutable: true) {
 
 type Purchase @entity(immutable: true) {
   id: ID!
+  txHash: Bytes!
   offer: Offer!
   offerToken: Token!
   buyerToken: Token!
