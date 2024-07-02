@@ -11,6 +11,7 @@ type Token @entity(immutable: true) {
   address: Bytes!
   tokenType: Int!
   offers: [Offer!]! @derivedFrom(field: "offerToken")
+  decimals: Int!
   offersAsCurrency: [Offer!]! @derivedFrom(field: "buyerToken")
   purchases: [Purchase!]! @derivedFrom(field: "offerToken")
   purchasesAsCurrency: [Purchase!]! @derivedFrom(field: "buyerToken")

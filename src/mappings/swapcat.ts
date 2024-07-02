@@ -12,6 +12,7 @@ import {
   DeleteofferCall
 } from "../../generated/Swapcat/Swapcat";
 import { ONE, ZERO } from "../helpers/number";
+import { ERC20 } from '../../generated/Swapcat/ERC20'
 
 function getAccount(address: string): Account {
   let account = Account.load(address);
@@ -28,7 +29,11 @@ function getToken(address: string): Token {
   if (token == null) {
     token = new Token(address);
     token.address = Address.fromHexString(address);
+    const res = ERC20.bind(Address.fromString(address)).try_decimals()
+    if (!res.reverted) token.decimals = res.value;
+    else token.decimals = 0;
     token.tokenType = 1;
+    
     token.save();
   }
   return token;
@@ -103,6 +108,7 @@ export function handleBuy(call: BuyCall): void {
     const offerToken = getToken(offer.offerToken);
     const buyerToken = getToken(offer.buyerToken);
 
+    
     const purchase = new Purchase(offerId + '-' + offer.purchasesCount.toString());
     purchase.offer = offer.id;
     purchase.offerToken = offerToken.id;
