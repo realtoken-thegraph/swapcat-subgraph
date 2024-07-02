@@ -29,11 +29,9 @@ function getToken(address: string): Token {
   if (token == null) {
     token = new Token(address);
     token.address = Address.fromHexString(address);
-    const res = ERC20.bind(Address.fromString(address)).try_decimals()
+    const res = ERC20.bind(Address.fromBytes(token.address)).try_decimals()
     if (!res.reverted) token.decimals = res.value;
-    else token.decimals = 0;
     token.tokenType = 1;
-    
     token.save();
   }
   return token;
