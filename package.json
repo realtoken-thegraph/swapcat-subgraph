@@ -6,7 +6,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy:eth": "yarn codegen:eth && yarn build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ realtoken-thegraph/swapcat-eth",
+    "deploy:eth": "yarn codegen:eth && yarn build && graph deploy --studio swapcat-ethereum",
     "deploy:xdai": "yarn codegen:xdai && yarn build && graph deploy --studio swapcat-gnosis",
     "deploy:all": "yarn deploy:eth && yarn deploy:xdai",
     "script": "node scripts/createSubgraph.js",
