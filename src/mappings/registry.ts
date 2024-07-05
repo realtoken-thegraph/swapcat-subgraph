@@ -19,7 +19,7 @@ const networkMapping: TypedMap<i32, string> = new TypedMap()
 networkMapping.set(1, "ethereumContract");
 networkMapping.set(100, "gnosisContract");
 
-export function createToken(address: Address): void {
+export function createToken(address: Address, decimal: i32, symbol: string | null): void {
 
   if (address) {
     // Persist token data if it doesn't already exist
@@ -28,6 +28,8 @@ export function createToken(address: Address): void {
     if (token == null) {
       token = new Token(address.toHex());
       token.address = address;
+      token.decimals = decimal
+      token.symbol = symbol;
       token.tokenType = 3;
       token.save();
     } else {
@@ -45,11 +47,17 @@ export function initRegistry(event: ethereum.Event): void {
     const tokenObj = tokenList[i].toObject();
     const address = tokenObj.get(networkKey);
     if (!address || address.kind !== JSONValueKind.STRING) continue;
+    const symbol = tokenObj.get("symbol");
+
+    let finalSymbolVal: string | null = null
+    if (symbol != null) finalSymbolVal = symbol.toString();
     const parsedAddress = Address.fromString(
       address.toString().toLowerCase()
     );
     createToken(
-      parsedAddress
+      parsedAddress,
+      i32(18),
+      finalSymbolVal
     );
   }
 }
